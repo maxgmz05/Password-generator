@@ -35,16 +35,17 @@ char_entry = tk.Entry(root)
 #base variables
 lowerc = list(range(97,123))
 upperc = list(range(65,91))
-number = list(range(48-57))
+number = list(range(48,58))
 symbol = [63,33,36,37,38,42,45]
 
 lowerc = ''.join(map(chr,lowerc))
 upperc = ''.join(map(chr,upperc))
-number = ''.join(map(chr,number))
+numberb = ''.join(map(chr,number))
 symbol = ''.join(map(chr,symbol))
 
 #label to display generated password
-pw_display = tk.Label(root,text='')
+customfont=("Courier", 25, "bold")
+pw_display = tk.Label(root,text='',font=customfont)
 
 #setting default value to the length entry widget
 def restore_default(event):
@@ -62,7 +63,7 @@ def password_generator_call():
         password_character_pool += upperc
     
     if numbers_var.get():
-        password_character_pool += number
+        password_character_pool += numberb
         
     if symbols_var.get():
         password_character_pool += symbol
@@ -92,7 +93,7 @@ def password_generator(pool,len=8):
 
 def copy_pass():
     root.clipboard_clear()
-    pw = pw.cget('text')
+    pw = pw_display.cget('text')
     root.clipboard_append(pw)
     messagebox.showinfo("Copied","Password copied to clipboard!")
 
@@ -100,19 +101,29 @@ def copy_pass():
 
 copy_button = tk.Button(root, text='copy', command = copy_pass)
 
+#creating space
+
+root.rowconfigure(0, minsize=25)  
+root.rowconfigure(1, minsize=35)  
+root.rowconfigure(2, minsize=25)
+root.rowconfigure(5, minsize=35)
+root.rowconfigure(6, minsize=65)
+root.rowconfigure(7, minsize=50)
+root.rowconfigure(8, minsize=25)
+
 #packing everything to the window
 
-length_label.pack()
-length_entry.pack()
-pw_contains_label.pack()
-upper_checkbox.pack()
-numbers_checkbox.pack()
-symbols_checkbox.pack()
-wantmore_label.pack()
-char_entry.pack()
-pw_display.pack()
-generate_button.pack()
-copy_button.pack()
+length_label.grid(row=0,column=0)
+length_entry.grid(row=0,column=1, sticky='w')
+pw_contains_label.grid(row=1,column=0, sticky='w')
+upper_checkbox.grid(row=2,column=1, sticky='w')
+numbers_checkbox.grid(row=3,column=1, sticky='w')
+symbols_checkbox.grid(row=4,column=1, sticky='w')
+wantmore_label.grid(row=5,column=0, sticky='w')
+char_entry.grid(row=5,column=1, sticky='w')
+pw_display.grid(row=6,column=0,columnspan=2)
+generate_button.grid(row=7,column=0,columnspan=2)
+copy_button.grid(row=8,column=0,columnspan=2)
 
 #mainloop
 
