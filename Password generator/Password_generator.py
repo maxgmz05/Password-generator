@@ -1,36 +1,90 @@
-import random
+#new code
+import os
+from pydoc import text
+import sys
 import tkinter as tk
-from tkinter import messagebox
+from turtle import color
+import random
 
-root = tk.Tk()
-root.title("Password generator")
+def clear_text():
+    pw_display.delete(0, 'end')
 
-#label that asks for password length
-length_label = tk.Label(root,text='Enter the desired length for the password:')
+def load_asset(path):
+    base = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    assets = os.path.join(base, "assets")
+    return os.path.join(assets, path)
 
-#entry for length
-length_entry = tk.Entry(root)
+window = tk.Tk()
+window.geometry("499x602")
+window.configure(bg="#000000")
+window.title("")
 
-#label to choose what the password can contain
-pw_contains_label = tk.Label(root, text='Choose what the password can contain:')
+#canvas
 
-#checkbox vairables
-upper_case_var = tk.IntVar()
-#lower_case_var = tk.IntVar()
-numbers_var = tk.IntVar()
-symbols_var = tk.IntVar()
+canvas = tk.Canvas(
+    window,
+    bg = "#000000",
+    width = 499,
+    height = 602,
+    bd = 0,
+    highlightthickness = 0,
+    relief = "ridge"
+)
 
-#checkboxes
-upper_checkbox = tk.Checkbutton(root, text='Upper case letters (A-Z)', variable=upper_case_var)
-#lower_checkbox = tk.Checkbutton(root, text='Lower case letters (a-z)', variable=lower_case_var)
-numbers_checkbox = tk.Checkbutton(root, text='Numbers (0-9)', variable=numbers_var)
-symbols_checkbox = tk.Checkbutton(root, text='Symbols (?!$%&*-)', variable=symbols_var)
+canvas.place(x=0, y=0)
 
-#label to ask user if they want add anything extra
-wantmore_label = tk.Label(root, text='Enter any extra characters \nyou may want in your password')
+generate_button_image = tk.PhotoImage(file=load_asset("1.png"))
+button_3_image = tk.PhotoImage(file=load_asset("3.png"))
 
-#entry for the extra characters
-char_entry = tk.Entry(root)
+#creating 3 labels for text fields
+
+rect1_label = tk.Label(canvas, image= button_3_image, borderwidth=0)
+rect2_label = tk.Label(canvas, image= button_3_image, borderwidth=0)
+rect3_label = tk.Label(canvas, image= button_3_image, borderwidth=0)
+
+canvas.create_rectangle(0, 0, 499, 40, fill='#171717', outline="")
+
+canvas.create_text(
+    13,
+    7,
+    anchor="nw",
+    text="Password Generator",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
+
+rect1_label.place(x=249,y=51)
+
+entrytextcolor = "#FFFFFF"
+entrybackcolor = "#343536"
+
+#entry for the number of characters
+
+length_entry = tk.Entry(
+    font=("Arial",24),
+    fg=entrytextcolor,
+    bd=0,
+    bg=entrybackcolor,
+    insertbackground="#000000",
+    highlightthickness=0,
+    justify="center"
+)
+
+length_entry.place(x=249, y=63, width=230, height=38,)
+
+rect2_label.place(x=249,y=308)
+
+#entry for additional characters to may be added to the generated password
+
+char_entry = tk.Entry(
+    font=("Arial",24),
+    fg=entrytextcolor,
+    bd=0,
+    bg=entrybackcolor,
+    insertbackground="#000000",
+    highlightthickness=0,
+    justify="center"
+)
 
 #base variables
 lowerc = list(range(97,123))
@@ -43,20 +97,34 @@ upperc = ''.join(map(chr,upperc))
 numberb = ''.join(map(chr,number))
 symbol = ''.join(map(chr,symbol))
 
-#label to display generated password
-customfont=("Courier", 25, "bold")
-pw_display = tk.Label(root,text='',font=customfont)
+#password output
+
+pw_display = tk.Entry(
+    font=("courier",24,'bold'),
+    fg=entrytextcolor,
+    bd=0,
+    bg=entrybackcolor,
+    insertbackground="#000000",
+    highlightthickness=0,
+    justify="center"
+)
 
 #setting default value to the length entry widget
-def restore_default(event):
-    if length_entry.get == '':
+def restore_default():
+    if length_entry.get() == '':  # call get() as a method
         length_entry.insert(0,'8')
+
+#function to generate password
+def password_generator(pool,len=8):
+    password = ''
+    
+    for i in range(len):
+        password += random.choice(pool)
         
-length_entry.insert(0,'8')
-length_entry.bind("<FocusOut>", restore_default)
+    print(password)
+    return(password)
 
 #function to work on button press
-
 def password_generator_call():
     password_character_pool = ''+lowerc
     if upper_case_var.get():
@@ -68,65 +136,208 @@ def password_generator_call():
     if symbols_var.get():
         password_character_pool += symbol
         
+    if length_entry.get()=='':
+        length_entry.insert(0,'8')
+        
     length_of_password = int(length_entry.get())
     
     password = password_generator(password_character_pool, length_of_password)
     
-    pw_display.config(text=password)
+    pw_display.delete(0,'end')
+    pw_display.insert(0, password)
     
-#button to generate password
+pw_display.place(x=249, y=453, width=230, height=38,)
 
-generate_button = tk.Button(root, text="Generate", command=password_generator_call)  
-    
-#function to generate password
+char_entry.place(x=249, y=320, width=230, height=38,)
 
-def password_generator(pool,len=8):
-    password = ''
-    
-    for i in range(len):
-        password += random.choice(pool)
-        
-    print(password)
-    return(password)
+pw_display.insert(0, '********')
 
-#function for when copy button is pressed
+canvas.create_text(
+    17,
+    59,
+    anchor="nw",
+    text="Enter the number of \ncharacters",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
 
-def copy_pass():
-    root.clipboard_clear()
-    pw = pw_display.cget('text')
-    root.clipboard_append(pw)
-    messagebox.showinfo("Copied","Password copied to clipboard!")
+canvas.create_text(
+    17,
+    124,
+    anchor="nw",
+    text="The password can include :",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
 
-#button to copy password
+#checkbottens for characters that can be included
 
-copy_button = tk.Button(root, text='copy', command = copy_pass)
+chkbutton_image = tk.PhotoImage(file=load_asset('2.png'))
+chekpressbutton = tk.PhotoImage(file=load_asset('4.png'))
 
-#creating space
+#variables for checkbuttons
+upper_case_var = tk.IntVar()
+numbers_var = tk.IntVar()
+symbols_var = tk.IntVar()
 
-root.rowconfigure(0, minsize=25)  
-root.rowconfigure(1, minsize=35)  
-root.rowconfigure(2, minsize=25)
-root.rowconfigure(5, minsize=35)
-root.rowconfigure(6, minsize=65)
-root.rowconfigure(7, minsize=50)
-root.rowconfigure(8, minsize=25)
+#for upper case characters
+upper_button = tk.Checkbutton(
+    canvas,
+    image= chkbutton_image,
+    selectimage=chekpressbutton,
+    indicatoron=0,
+    borderwidth=0,
+    bg='#000000',
+    selectcolor="#000000",
+    highlightthickness=0,
+    activebackground="#000000",
+    variable=upper_case_var
+)
 
-#packing everything to the window
+#for numbers
+number_button = tk.Checkbutton(
+    canvas,
+    image= chkbutton_image,
+    selectimage=chekpressbutton,
+    indicatoron=0,
+    borderwidth=0,
+    bg="#000000",
+    selectcolor="#000000",
+    highlightthickness=0,
+    activebackground="#000000",
+    variable=numbers_var
+)
 
-length_label.grid(row=0,column=0)
-length_entry.grid(row=0,column=1, sticky='w')
-pw_contains_label.grid(row=1,column=0, sticky='w')
-upper_checkbox.grid(row=2,column=1, sticky='w')
-numbers_checkbox.grid(row=3,column=1, sticky='w')
-symbols_checkbox.grid(row=4,column=1, sticky='w')
-wantmore_label.grid(row=5,column=0, sticky='w')
-char_entry.grid(row=5,column=1, sticky='w')
-pw_display.grid(row=6,column=0,columnspan=2)
-generate_button.grid(row=7,column=0,columnspan=2)
-copy_button.grid(row=8,column=0,columnspan=2)
+#for symbols
+symbo_button = tk.Checkbutton(
+    canvas,
+    image= chkbutton_image,
+    selectimage=chekpressbutton,
+    indicatoron=0,
+    borderwidth=0,
+    bg='#000000',
+    selectcolor="#000000",
+    activebackground="#000000",
+    highlightthickness=0,
+    variable=symbols_var
+)
 
-#mainloop
+upper_button.place(x=143,y=163)
+number_button.place(x=143,y=205)
+symbo_button.place(x=143, y=247)
 
-root.mainloop()
+canvas.create_text(
+    200,
+    161,
+    anchor="nw",
+    text="Upper case (A-Z)",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
 
+canvas.create_text(
+    200,
+    203,
+    anchor="nw",
+    text="Numbers (0-9)",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
 
+canvas.create_text(
+    200,
+    247,
+    anchor="nw",
+    text="Symbols (?!$%&*-)",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
+
+canvas.create_text(
+    17,
+    317,
+    anchor="nw",
+    text="Any other characters you \nmay want in your \npassword",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
+
+#generate button
+
+generate_button = tk.Button(
+    image=generate_button_image,
+    relief="flat",
+    borderwidth=0,
+    background="#000000",
+    bg="#000000",
+    highlightthickness=0,
+    activebackground="#000000",
+    command=password_generator_call,
+    text='Generate',
+    font=("Arial",20 * -1),
+    fg="#ffffff",
+    compound="center"
+)
+
+generate_button.place(x=17, y=445, width=230, height=62)
+
+canvas.create_text(
+    249,
+    403,
+    anchor="nw",
+    text="Your password:",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
+
+rect3_label.place(x=249, y=441)
+
+canvas.create_text(
+    249,
+    454,
+    anchor="nw",
+    text="**************",
+    fill="#ffffff",
+    font=("Arial", 15 * -1)
+)
+
+canvas.create_text(
+    17,
+    460,
+    anchor="nw",
+    text="Generate",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
+
+#copy button
+
+copy_button_image = tk.PhotoImage(file=load_asset("1.png"))
+
+copy_button = tk.Button(
+    image=copy_button_image,
+    relief="flat",
+    borderwidth=0,
+    background="#000000",
+    highlightthickness=0,
+    activebackground="#000000",
+    command=clear_text,
+    text='Copy to clipboard',
+    font=("Arial",20 * -1),
+    fg="#ffffff",
+    compound="center"
+)
+
+copy_button.place(x=147, y=531, width=230, height=62)
+
+canvas.create_text(
+    147,
+    546,
+    anchor="nw",
+    text="Copy to clipboard",
+    fill="#ffffff",
+    font=("Arial", 20 * -1)
+)
+
+window.resizable(False, False)
+window.mainloop()
